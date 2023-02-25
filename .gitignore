@@ -1,13 +1,10 @@
-# no *.o or*.a files
+
 *.[oa]
-# no temporary files
 *~
 *swp
-# ignor all files in the bin/
 directory
 bin/
-# no *.txt files
 *.txt
-# but track input.txt
 ! input.txt
 *.exe
+geometry_test
