@@ -1,0 +1,10 @@
+
+*.[oa]
+*~
+*swp
+directory
+bin/
+*.txt
+! input.txt
+*.exe
+geometry_test
