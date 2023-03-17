@@ -1,22 +1,44 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
+#include<ctype.h>
 
-#define ERROR_1 "Error reading from file\n"
-#define ERROR_2 "Enter the object\n"
-#define ERROR_3 "Expected '('\n"
-#define ERROR_4 "Object data is expected to be entered\n"
+#define ERROR_1 "Error at column 1: error reading from file\n"
+#define ERROR_2 "Error at column 2: enter the object\n"
+#define ERROR_3 "Error at column 3: expected '('\n"
+#define ERROR_4 "Error at column 4: object data is expected to be entered\n"
+#define ERROR_5 "Error at column 5: enter the data\n"
+#define ERROR_6 "Error at column 6: introduced '%s' expected 'circle', 'triangle' or 'polygon'\n"
+#define ERROR_7 "Error at column 7: expected '<double>'\n"
+#define ERROR_8 "Error at column 8: too many variables were passed\n"
+#define ERROR_9 "Error at column 9: expected ','\n"
+#define ERROR_10 "Error at column 10: expected ')'\n"
+#define ERROR_11 "Error at column 11: unexpected token\n"
+#define ERROR_12 "Error at column 12: the radius cannot be negative\n"
 
 
-int check_object(char* str)
+int check_object(char* str, char* str_O, int* o)
 {
-    int i=0;
+    int i=0, n = strlen(str), k=0,m=0;
     char c=str[i];
-    int n = strlen(str);
 
     while(c!='(' && i!=n)
     {
         c=str[i];
+        if(c!=' ' && c!='(')
+        {
+            if(k==1)
+            {  
+                puts(str);
+                str_O[m] = '\0';
+                printf(ERROR_6, str_O);
+                return -1;
+            }
+            str_O[m] = str[i];
+            m++;
+        }
+        if(m!=0 && c==' ')
+            k=1;
 
         i++;
     }
@@ -26,20 +48,217 @@ int check_object(char* str)
         return 2;
     if(i==n)
         return 3;
+    str_O[m] = '\0';
+    *o=i;
+    for(i=0;i<m+1;i++)
+    {
+        int c=str_O[i];
+        c=tolower(c);
+        str_O[i]=c;
+    }
+    if(strcmp(str_O,"circle") == 0)
+        return 101;
+    if(strcmp(str_O,"triangle") == 0)
+        return 102;
+    if(strcmp(str_O,"polygon") == 0)
+        return 103;
+    puts(str);
+    printf(ERROR_6,str_O);
+    return -1;   
+}
+
+
+int check_circle(char* str, int k, char* str_D)
+{
+    int v=0,m=0,l=0,g,n=strlen(str);
+    char c=str[k],q=',',w=')',h;
+    for(int j=0;j<2;j++)
+    {
+        if(j==0)
+        {
+            h=q;
+            g=2;
+        }
+        if(j==1)
+        {
+            v=0; h=w; g=1; k++; l=0;
+            c=str[k];
+        }
+        while(c!=h && k!=n)
+        {
+            if(isdigit(c)!=0 && v<g)
+            {
+                str_D[m]=str[k];
+                m++;
+            }
+            if(isdigit(c)!=0 && v==g)
+            {
+                puts(str);
+                for(int i=0; i<k; i++)
+                {
+                    printf(" ");
+                }
+                printf("^\n");
+                printf(ERROR_8);
+                return -1;
+            }
+            if(isdigit(c)==0 && v<g)
+            {
+                if(c=='-')
+                {
+
+                }
+                if(c=='.')
+                {
+                    if(l>0)
+                    {
+                        puts(str);
+                        for(int i=0; i<k; i++)
+                        {
+                            printf(" ");
+                        }
+                        printf("^\n");
+                        printf(ERROR_7);
+                        return -1;
+                    }
+                    if(l==0 && isdigit(str[k-1])!=0)
+                    {
+                        str_D[m]=str[k];
+                        m++;
+                        l++;
+                    }
+                    if(l==0 && isdigit(str[k-1])==0)
+                    {
+                        puts(str);
+                        for(int i=0; i<k; i++)
+                        {
+                            printf(" ");
+                        }
+                        printf("^\n");
+                        printf(ERROR_7);
+                        return -1;
+                    }
+                }
+                if(c==' ')
+                {
+                    l=0;
+                    if(str[k-1]!=' ' && str[k-1]!='(' && str[k-1]!=',')
+                        v++;
+                }
+            }
+            if(isdigit(c)==0 && c!=' ' && c!='.')
+            {
+                if(c=='-' && isdigit(str[k+1])!=0 && g==2)
+                {
+                    str_D[m]=str[k];
+                    m++;
+                }
+                else
+                {
+                    if(g==1 && c=='-' && isdigit(str[k+1])!=0)
+                    {
+                        puts(str);
+                        for(int i=0; i<k; i++)
+                        {
+                            printf(" ");
+                        }
+                        printf("^\n");
+                        printf(ERROR_12);
+                        return -1;
+                    }
+                    if(isdigit(str[k-1])!=0 || isdigit(str[k+1])!=0 || v<g)
+                    {
+                        puts(str);
+                        for(int i=0; i<k; i++)
+                        {
+                            printf(" ");
+                        }
+                        printf("^\n");
+                        printf(ERROR_7);
+                        return -1;
+                    }
+                    if(v==g)
+                    {
+                        puts(str);
+                        for(int i=0; i<k; i++)
+                        {
+                            printf(" ");
+                        }
+                        printf("^\n");
+                        if(g==2)
+                            printf(ERROR_9);
+                        if(g==1)
+                            printf(ERROR_10);
+                        return -1;
+                    }
+                }
+            }
+            k++;
+            c=str[k];
+        }
+    }
+    k++;
+    if(k<n-1)
+    {
+        while(k!=n+1)
+        {
+            c=str[k];
+            if(isgraph(c))
+            {
+                puts(str);
+                for(int i=0; i<k; i++)
+                    {
+                        printf(" ");
+                    }
+                    printf("^\n");
+                    printf(ERROR_11);
+                    return -1;
+            }
+            k++;
+        }
+    }
     return 0;
 }
 
 
-int check(char* str)
+int check_triangle(char* str, int k, char* str_D)
 {
-    int n = check_object(str);
+
+}
+
+
+int check_polygon(char* str, int k, char* str_D)
+{
+
+}
+
+
+int check(char* str)
+{   
+    char *str_O = malloc(100 * sizeof(char));
+    int k;
+    int n = check_object(str,str_O,&k);
+    free(str_O);
+    char *str_D = malloc(100 * sizeof(char));
+    if(n==101)
+    {
+        n = check_circle(str,k,str_D);
+    }
+    if(n==102)
+    {
+        n = check_triangle(str,k,str_D);
+    }
+    if(n==103)
+    {
+        n = check_polygon(str,k,str_D);
+    }
     return n;
 }
 
 
 int check_and_output(FILE* file)
 {
-    int n=1000;
+    int n=1000,v=0;
     char* str1, *str = malloc(n * sizeof(char));
     while(1)
     {
@@ -48,6 +267,11 @@ int check_and_output(FILE* file)
         {
             if(feof(file) != 0)
             {
+                if(v==0)
+                {
+                    printf(ERROR_5);
+                    return -1;
+                }
                 return 0;
             }
             else
@@ -88,7 +312,10 @@ int check_and_output(FILE* file)
             printf(ERROR_4);
             return -1;
         }
+        if(err == -1)
+            return -1;
         puts(str);
+        v++;
     }
     free(str);
 }
