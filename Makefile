@@ -1,6 +1,6 @@
-all: compilation
+all: geometry.exe
 
-compilation: geometry.c
+geometry.exe: geometry.c
 	gcc -Wall -Werror -o geometry.exe  geometry.c
 
 clean:
